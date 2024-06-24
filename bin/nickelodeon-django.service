@@ -1,0 +1,18 @@
+[Unit]
+Description="nickelodeon django server"
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=Simple
+ExecStart=/apps/nickelodeon-backend/env/bin/uwsgi --ini /apps/nickelodeon-backend/bin/uwsgi.ini
+Restart=always
+Environment="PATH=/apps/nickelodeon-backend/env/bin/"
+WorkingDirectory=/apps/nickelodeon-backend/
+ExecReload=/bin/kill -s HUP $MAINPID
+KillMode=mixed
+TimeoutSec=5
+PrivateTmp=true
+
+[Install]
+WantedBy=default.target

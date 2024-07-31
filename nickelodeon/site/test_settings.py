@@ -23,3 +23,4 @@ DATABASES = {
 S3_ENDPOINT_URL = "http://localhost:9000"
 S3_ACCESS_KEY = "minioadmin"
 S3_SECRET_KEY = "minioadmin"
+FILE_UPLOAD_TEMP_DIR="/tmp"

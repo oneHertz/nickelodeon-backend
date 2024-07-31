@@ -98,6 +98,16 @@ class RandomSongView(generics.RetrieveAPIView):
         return self.get_queryset()[random_index]
 
 
+class RandomSongListView(generics.ListAPIView):
+    serializer_class = MP3SongSerializer
+    queryset = MP3Song.objects.select_related("owner").all()
+    permission_classes = (IsAuthenticated,)
+
+    @transaction.atomic
+    def list(self):
+        return self.get_queryset().order_by("?")[:100]
+
+
 class PasswordChangeView(APIView):
     serializer_class = ChangePasswordSerializer
     permission_classes = (IsAuthenticated,)

@@ -20,6 +20,9 @@ urlpatterns = [
         r"^songs/random/?$", view=views.RandomSongView.as_view(), name="song_random"
     ),
     re_path(
+        r"^songs/random_list/?$", view=views.RandomSongListView.as_view(), name="song_random_list"
+    ),
+    re_path(
         r"^songs/(?P<pk>[a-zA-Z0-9_-]{11})/?$",
         view=views.SongView.as_view(),
         name="song_detail",

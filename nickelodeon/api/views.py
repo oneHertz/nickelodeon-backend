@@ -104,7 +104,7 @@ class RandomSongListView(generics.ListAPIView):
     permission_classes = (IsAuthenticated,)
 
     @transaction.atomic
-    def list(self):
+    def list(self, request, *args, **kwargs):
         return self.get_queryset().order_by("?")[:100]
 
 

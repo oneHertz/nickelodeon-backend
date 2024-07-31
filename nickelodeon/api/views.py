@@ -105,7 +105,7 @@ class RandomSongListView(generics.ListAPIView):
 
     @transaction.atomic
     def get_queryset(self):
-        return super().order_by("?")[:100]
+        return super().get_queryset().order_by("?")[:100]
 
 
 class PasswordChangeView(APIView):

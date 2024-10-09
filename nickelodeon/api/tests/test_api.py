@@ -43,7 +43,7 @@ class ApiTestCase(APITestCase):
         res = self.client.post(
             url, data={"username": self.username, "password": self.password}
         )
-        self.assertEquals(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertIsNotNone(res.data.get("token"))
 
     def test_auth_wrong_password(self):
@@ -51,8 +51,8 @@ class ApiTestCase(APITestCase):
         res = self.client.post(
             url, data={"username": self.username, "password": "wrong_password"}
         )
-        self.assertEquals(res.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEquals(
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
             res.data.get("non_field_errors"),
             ["Unable to log in with provided credentials."],
         )
@@ -62,8 +62,8 @@ class ApiTestCase(APITestCase):
         res = self.client.post(
             url, data={"username": "wrong_username", "password": self.password}
         )
-        self.assertEquals(res.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEquals(
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
             res.data.get("non_field_errors"),
             ["Unable to log in with provided credentials."],
         )
@@ -79,7 +79,7 @@ class ApiTestCase(APITestCase):
                 "confirm_password": "abc_12",
             },
         )
-        self.assertEquals(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
         res = self.client.put(
             view_url,
             data={
@@ -88,7 +88,7 @@ class ApiTestCase(APITestCase):
                 "confirm_password": "abc_123",
             },
         )
-        self.assertEquals(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
         res = self.client.put(
             view_url,
             data={
@@ -97,7 +97,7 @@ class ApiTestCase(APITestCase):
                 "confirm_password": "abc_123",
             },
         )
-        self.assertEquals(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.client.logout()
         self.assertTrue(self.client.login(username=self.username, password="abc_123"))
         self.client.logout()
@@ -114,7 +114,7 @@ class ApiTestCase(APITestCase):
             "song_download", kwargs={"pk": self.song.id, "extension": "mp3"}
         )
         res = self.client.get(download_url, data={"auth_token": auth_token})
-        self.assertEquals(res.status_code, status.HTTP_206_PARTIAL_CONTENT)
+        self.assertEqual(res.status_code, status.HTTP_206_PARTIAL_CONTENT)
         self.assertTrue(
             res.get("X-Accel-Redirect").startswith(
                 f"/s3_proxy/{settings.S3_BUCKET}/{self.user.settings.storage_prefix}/foo.mp3"
@@ -123,7 +123,7 @@ class ApiTestCase(APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + auth_token)
         random_song_url = reverse("song_random")
         res = self.client.get(random_song_url)
-        self.assertEquals(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
         expected = {
             "filename": "foo",
             "url": (
@@ -138,10 +138,10 @@ class ApiTestCase(APITestCase):
             "aac": False,
             "owner": self.username,
         }
-        self.assertEquals(res.data, expected)
+        self.assertEqual(res.data, expected)
         song_url = reverse("song_detail", kwargs={"pk": self.song.id})
         res = self.client.get(song_url)
-        self.assertEquals(res.data, expected)
+        self.assertEqual(res.data, expected)
         self.assertTrue(
             s3_object_exists(f"{self.user.settings.storage_prefix}/foo.mp3")
         )
@@ -149,9 +149,9 @@ class ApiTestCase(APITestCase):
         # FIXME: Require celery to work
 
         res = self.client.put(song_url, data={"filename": "bar"})
-        self.assertEquals(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
         expected["filename"] = "bar"
-        self.assertEquals(res.data, expected)
+        self.assertEqual(res.data, expected)
         self.assertTrue(
             s3_object_exists(f"{self.user.settings.storage_prefix}/bar.mp3")
         )
@@ -159,7 +159,7 @@ class ApiTestCase(APITestCase):
             s3_object_exists(f"{self.user.settings.storage_prefix}/foo.mp3")
         )
         res = self.client.get(download_url)
-        self.assertEquals(res.status_code, status.HTTP_206_PARTIAL_CONTENT)
+        self.assertEqual(res.status_code, status.HTTP_206_PARTIAL_CONTENT)
         self.assertTrue(
             res.get("X-Accel-Redirect").startswith(
                 f"/s3_proxy/{settings.S3_BUCKET}/{self.user.settings.storage_prefix}/bar.mp3"
@@ -167,11 +167,11 @@ class ApiTestCase(APITestCase):
         )
         """
         res = self.client.delete(song_url)
-        self.assertEquals(res.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
         res = self.client.get(random_song_url)
-        self.assertEquals(res.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND)
         res = self.client.get(song_url)
-        self.assertEquals(res.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND)
         self.assertFalse(
             s3_object_exists(f"{self.user.settings.storage_prefix}/foo.mp3")
         )
@@ -184,11 +184,11 @@ class ApiTestCase(APITestCase):
         self.create_mp3()
         search_url = reverse("song_list")
         res = self.client.get(search_url, data={"q": "foo"})
-        self.assertEquals(res.status_code, status.HTTP_200_OK)
-        self.assertEquals(len(res.data), 1)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data), 1)
         res = self.client.get(search_url, data={"q": ""})
-        self.assertEquals(res.status_code, status.HTTP_200_OK)
-        self.assertEquals(len(res.data), 0)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data), 0)
         logout_url = reverse("knox_logout")
         res = self.client.post(logout_url)
-        self.assertEquals(res.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)

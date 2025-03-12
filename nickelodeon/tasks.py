@@ -267,7 +267,9 @@ def fetch_spotify_track(user_id="", track_id=""):
     update_dl_progress(0)
     session = None
     try:
-        session = SpotSession.Builder().stored(settings.SPOTIFY_TOKEN).create()
+        token = settings.SPOTIFY_TOKEN
+        conf = SpotSession.Configuration.Builder().set_store_credentials(False).build()
+        session = SpotSession.Builder(conf).stored(token).create()
         if not session.is_valid():
             current_task.update_state(
                 state="FAILED",

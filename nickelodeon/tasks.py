@@ -277,7 +277,11 @@ def fetch_spotify_track(user_id="", track_id=""):
             )
             raise Ignore()
     except RuntimeError:
-        pass
+        current_task.update_state(
+            state="FAILED",
+            meta={"error": "Could not login spotify"},
+        )
+        raise Ignore()
 
     strack_id = SpotTrackId.from_base62(track_id)
     original = session.api().get_metadata_4_track(strack_id)

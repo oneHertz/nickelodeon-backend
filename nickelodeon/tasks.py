@@ -68,7 +68,7 @@ def create_aac(mp3_id=""):
     return {"done": "ok"}
 
 
-@shared_task()
+@shared_task(max_retries=0)
 def fetch_youtube_video(user_id="", video_id=""):
     safe_title = ""
     current_task.update_state(
@@ -197,7 +197,7 @@ def fetch_youtube_video(user_id="", video_id=""):
     }
 
 
-@shared_task()
+@shared_task(max_retries=0)
 def fetch_spotify_track(user_id="", track_id=""):
     current_task.update_state(
         state="PROGRESS",
@@ -253,7 +253,7 @@ def fetch_spotify_track(user_id="", track_id=""):
         logger.error("ffmpeg can not do the necesary file conversions")
         raise Ignore()
 
-    with tempfile.NamedTemporaryFile() as download_file:
+    with tempfile.NamedTemporaryFile(suffix=".ogg") as download_file:
         download_path = download_file.name
 
     tmp_paths = {}
@@ -303,7 +303,7 @@ def fetch_spotify_track(user_id="", track_id=""):
         strack_id, VorbisOnlyAudioQuality(AudioQuality.VERY_HIGH), False, None
     )
     end = stream.input_stream.stream().size()
-    with open(download_path + ".ogg", "wb") as fp:
+    with open(download_path, "wb") as fp:
         while True:
             if stream.input_stream.stream().pos() >= end:
                 break
@@ -312,7 +312,7 @@ def fetch_spotify_track(user_id="", track_id=""):
                 fp.write(bytes(byte))
     update_dl_progress(1)
     convert_audio(
-        download_path + ".ogg",
+        download_path,
         tmp_paths.get("aac"),
         tmp_paths.get("mp3"),
         callback=update_conversion_progress,

@@ -266,21 +266,17 @@ def fetch_spotify_track(user_id="", track_id=""):
 
     update_dl_progress(0)
     session = None
-    if os.path.isfile("credentials.json"):
-        try:
-            session = SpotSession.Builder().stored_file().create()
-        except RuntimeError:
-            pass
-    if session is None or not session.is_valid():
-        username = settings.SPOTIFY_USERNAME
-        password = settings.SPOTIFY_PASSWORD
-        session = SpotSession.Builder().user_pass(username, password).create()
+    try:
+        session = SpotSession.Builder().stored(settings.SPOTIFY_TOKEN).create()
         if not session.is_valid():
             current_task.update_state(
                 state="FAILED",
                 meta={"error": "Could not login spotify"},
             )
             raise Ignore()
+    except RuntimeError:
+        pass
+
     strack_id = SpotTrackId.from_base62(track_id)
     original = session.api().get_metadata_4_track(strack_id)
     track = session.content_feeder().pick_alternative_if_necessary(original)

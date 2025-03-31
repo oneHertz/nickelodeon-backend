@@ -267,10 +267,10 @@ def fetch_spotify_track(user_id="", track_id=""):
     update_dl_progress(0)
     session = None
     if os.path.isfile("credentials.json"):
-         try:
-             session = SpotSession.Builder().stored_file().create()
-         except RuntimeError:
-             pass
+        try:
+            session = SpotSession.Builder().stored_file().create()
+        except RuntimeError:
+            pass
     if session is None or not session.is_valid():
         username = settings.SPOTIFY_USERNAME
         password = settings.SPOTIFY_PASSWORD

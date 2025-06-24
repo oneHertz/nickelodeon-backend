@@ -9,6 +9,7 @@ jobs:
       - checkout
       - run: sudo apt update && sudo apt install -y libpq-dev
       - run: curl -LsSf https://astral.sh/uv/install.sh | sh
+      - run: uv python install
       - run: uv venv
       - run: uv pip install -r requirements.txt
       - run: uv pip install coveralls

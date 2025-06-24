@@ -7,7 +7,7 @@ django-rest-knox @ git+https://github.com/James1345/django-rest-knox.git@8447cd0
 raven
 django-resumable @ git+https://github.com/rphlo/django-resumable
 boto3
-retricon
+retricon @ git+https://github.com/rphlo/py-retricon
 uwsgi
 psycopg
 librespot @ git+https://github.com/kokarare1212/librespot-python

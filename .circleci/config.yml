@@ -8,17 +8,19 @@ jobs:
     steps:
       - checkout
       - run: sudo apt update && sudo apt install -y libpq-dev
-      - run: pip3 install -U -r requirements.txt
-      - run: pip3 install coveralls
+      - run: curl -LsSf https://astral.sh/uv/install.sh | sh
+      - run: uv venv
+      - run: uv pip install -r requirements.txt
+      - run: uv pip install coveralls
       - run: mkdir -p media/humppa-music
       - run: docker run -d -v media:/data -p 9000:9000 minio/minio:edge server /data
       - run:
+          name: Run tests
           command: |
             coverage run --source=nickelodeon manage.py test --settings=nickelodeon.site.test_settings
-          name: Test
       - run:
-          command: python3 -m coveralls
           name: Upload coverage
+          command: python -m coveralls
 
 workflows:
   main:

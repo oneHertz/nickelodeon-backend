@@ -174,7 +174,7 @@ class TextSearchApiView(generics.ListAPIView):
                     settings.DATABASES["default"]["ENGINE"]
                     == "django.db.backends.postgresql"
                 ):
-                    key = "filename__search__unaccent"
+                    key = "filename__search"
                 else:
                     key = "filename__icontains"
                 query &= Q(**{key: search_term})

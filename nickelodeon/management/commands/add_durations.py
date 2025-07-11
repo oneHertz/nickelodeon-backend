@@ -22,8 +22,8 @@ class Command(BaseCommand):
                 for future in as_completed(future_to_song):
                     song = future_to_song[future]
                     print(song.filename)
-                    print(f"{i}/{song_count}")
                     i += 1
+                    print(f"{i}/{song_count}")
         except KeyboardInterrupt:
             pass
         

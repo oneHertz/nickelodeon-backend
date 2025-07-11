@@ -10,7 +10,7 @@ class Command(BaseCommand):
     help = "Add the missing duration of the songs in the library"
 
     def add_arguments(self, parser):
-        parser.add_argument("-w", "--workers", type="int", default=1)
+        parser.add_argument("-w", "--workers", type=int, default=1)
 
     def handle(self, *args, **options):
         songs = MP3Song.objects.select_related("owner").filter(duration=0)

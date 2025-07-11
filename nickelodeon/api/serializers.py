@@ -33,7 +33,7 @@ class MP3SongSerializer(serializers.ModelSerializer):
     owner = serializers.ReadOnlyField(source="owner_username")
     id = serializers.ReadOnlyField()
     aac = serializers.ReadOnlyField()
-    duration = serializers.ReadOnlyField(source="get_duration")
+    duration = serializers.ReadOnlyField()
 
     def update(self, instance, validated_data):
         if not instance.can_move_to_dest(validated_data["filename"]):

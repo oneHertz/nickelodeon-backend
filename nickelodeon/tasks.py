@@ -65,6 +65,7 @@ def create_aac(mp3_id=""):
     if not song.aac:
         song.aac = True
         song.save()
+    song.get_duration()
     return {"done": "ok"}
 
 
@@ -190,6 +191,7 @@ def fetch_youtube_video(user_id="", video_id=""):
         aac=("aac" in extension_converted),
         owner=user,
     )
+    song.get_duration()
     return {
         "pk": song.pk,
         "youtube_id": video_id,
@@ -331,6 +333,7 @@ def fetch_spotify_track(user_id="", track_id=""):
         aac=("aac" in extension_converted),
         owner=user,
     )
+    song.get_duration()
     return {
         "pk": song.pk,
         "track_id": track_id,

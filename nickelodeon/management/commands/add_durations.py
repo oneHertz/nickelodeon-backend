@@ -16,13 +16,16 @@ class Command(BaseCommand):
         songs = MP3Song.objects.select_related("owner").filter(duration=0)
         song_count = songs.count()
         i = 0
-        with ThreadPoolExecutor(max_workers=options.get("workers")) as executor:
-            future_to_song = {executor.submit(self.handle_song, song): song for song in songs}
-            for future in as_completed(future_to_song):
-                song = future_to_song[future]
-                print(song.filename)
-                print(f"{i}/{song_count}")
-                i += 1
+        try:
+            with ThreadPoolExecutor(max_workers=options.get("workers")) as executor:
+                future_to_song = {executor.submit(self.handle_song, song): song for song in songs}
+                for future in as_completed(future_to_song):
+                    song = future_to_song[future]
+                    print(song.filename)
+                    print(f"{i}/{song_count}")
+                    i += 1
+        except KeyboardInterrupt:
+            pass
         
     def handle_song(self, song):
         song.get_duration()

@@ -4,7 +4,7 @@ from django.core.management.base import BaseCommand
 
 from nickelodeon.models import MP3Song
 from nickelodeon.utils import convert_audio, s3_object_url, s3_upload
-
+import tqdm
 
 class Command(BaseCommand):
     help = "Add the missing duration of the songs in the library"
@@ -17,13 +17,14 @@ class Command(BaseCommand):
         song_count = songs.count()
         i = 0
         try:
-            with ThreadPoolExecutor(max_workers=options.get("workers")) as executor:
-                future_to_song = {executor.submit(self.handle_song, song): song for song in songs}
-                for future in as_completed(future_to_song):
-                    song = future_to_song[future]
-                    print(song.filename)
-                    i += 1
-                    print(f"{i}/{song_count}")
+            with tqdm(song_count) as pbar:
+                with ThreadPoolExecutor(max_workers=options.get("workers")) as executor:
+                    future_to_song = {executor.submit(self.handle_song, song): song for song in songs}
+                    for future in as_completed(future_to_song):
+                        song = future_to_song[future]
+                        print(song.filename)
+                        i += 1
+                        pbar.update(1)
         except KeyboardInterrupt:
             pass
         

@@ -8,7 +8,7 @@ from tqdm import tqdm
 
 class Command(BaseCommand):
     args = ["workers"] 
-    help = "Add the missing duration for the songs in the library"
+    help = "Add the missing durations for the songs in the library"
 
     def add_arguments(self, parser):
         parser.add_argument("-w", "--workers", type=int, default=1)

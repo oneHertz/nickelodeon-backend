@@ -50,7 +50,7 @@ class MP3SongSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MP3Song
-        fields = ("id", "url", "filename", "download_url", "aac", "owner")
+        fields = ("id", "url", "filename", "duration", "download_url", "aac", "owner")
 
 
 class ChangePasswordSerializer(serializers.Serializer):

@@ -7,6 +7,7 @@ from nickelodeon.utils import convert_audio, s3_object_url, s3_upload
 from tqdm import tqdm
 
 class Command(BaseCommand):
+    args = ["workers"] 
     help = "Add the missing duration for the songs in the library"
 
     def add_arguments(self, parser):

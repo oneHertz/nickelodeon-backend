@@ -8,9 +8,10 @@ from nickelodeon.utils import convert_audio, s3_object_url, s3_upload
 
 class Command(BaseCommand):
     help = "Create the missing aac files for the songs in the library"
-
+    
     def handle(self, *args, **options):
         songs = MP3Song.objects.select_related("owner").filter(aac=False)
+        # TODO: Use thread pool
         for song in songs:
             try:
                 self.handle_song(song)
@@ -35,5 +36,3 @@ class Command(BaseCommand):
             song.aac = True
             song.save()
 
-    def print_conversion_progress(self, perc):
-        self.stdout.write("\r{}%".format(round(100 * perc, 1)), ending="")

@@ -7,7 +7,7 @@ from nickelodeon.utils import convert_audio, s3_object_url, s3_upload
 
 
 class Command(BaseCommand):
-    help = "Create the missing aac files of the songs in the library"
+    help = "Create the missing aac files for the songs in the library"
 
     def handle(self, *args, **options):
         songs = MP3Song.objects.select_related("owner").filter(aac=False)

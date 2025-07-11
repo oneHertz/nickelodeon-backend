@@ -110,13 +110,23 @@ class MP3Song(models.Model):
             if s3_object_exists(file_path):
                 s3_object_delete(file_path)
 
-    def get_duration(self, force=False):
-        if self.duration and not force:
+    def get_duration(self,force_mp3=False, invalidate_cache=False):
+        if self.duration and not invalidate_cache:
             return self.duration
 
-        extension = "aac" if self.has_aac else "mp3"
+        extension = "aac" if self.has_aac and not force_mp3 else "mp3"
+        
         file = s3_get_file(self.get_file_format_path(extension))
-        audio = mutagen.File(fileobj=BytesIO(file.getvalue()))
+        audio = None
+        try:
+            audio = mutagen.File(fileobj=BytesIO(file.getvalue()))
+        except Exception:
+            pass
+        if not audio:
+            if extension == "aac":
+                return self.get_duration(force_mp3=True, invalidate_cache=invalidate_cache)
+            else:
+                return 0
         self.duration = int(audio.info.length)
         self.save()
         return self.duration

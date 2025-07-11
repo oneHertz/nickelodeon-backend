@@ -2,7 +2,6 @@ from __future__ import unicode_literals
 
 import os
 import re
-from io import BytesIO
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models

@@ -136,7 +136,7 @@ class MP3Song(models.Model):
                 return self.get_duration(force_mp3=True, invalidate_cache=invalidate_cache)
             else:
                 return 0
-        self.duration = int(audio.info.length)
+        self.duration = round(audio.info.length)
         self.save()
         return self.duration
     

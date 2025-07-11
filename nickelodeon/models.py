@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 
+from io import BytesIO
 import os
 import re
 from django.conf import settings
@@ -115,7 +116,7 @@ class MP3Song(models.Model):
 
         extension = "aac" if self.has_aac else "mp3"
         file = s3_get_file(self.get_file_format_path(extension))
-        audio = mutagen.File(file)
+        audio = mutagen.File(fileobj=BytesIO(file.getvalue()))
         self.duration = audio.info.length
         self.save()
         return self.duration

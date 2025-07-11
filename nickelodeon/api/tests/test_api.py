@@ -137,6 +137,7 @@ class ApiTestCase(APITestCase):
             "id": self.song.id,
             "aac": False,
             "owner": self.username,
+            "duration": 0,
         }
         self.assertEqual(res.data, expected)
         song_url = reverse("song_detail", kwargs={"pk": self.song.id})

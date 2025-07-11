@@ -113,7 +113,7 @@ class MP3Song(models.Model):
         if self.duration and not force:
             return self.duration
 
-        extension = "aac" if has_aac else "mp3"
+        extension = "aac" if self.has_aac else "mp3"
         file = s3_get_file(self.get_file_format_path(extension).encode("utf-8"))
         audio = mutagen.File(file)
         self.duration = audio.info.length

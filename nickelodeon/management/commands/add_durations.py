@@ -17,7 +17,7 @@ class Command(BaseCommand):
         song_count = songs.count()
         i = 0
         try:
-            with tqdm(song_count) as pbar:
+            with tqdm(total=song_count, unit="song") as pbar:
                 with ThreadPoolExecutor(max_workers=options.get("workers")) as executor:
                     future_to_song = {executor.submit(self.handle_song, song): song for song in songs}
                     for future in as_completed(future_to_song):

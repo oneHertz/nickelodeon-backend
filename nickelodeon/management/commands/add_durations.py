@@ -1,5 +1,5 @@
 import tempfile
-
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from django.core.management.base import BaseCommand
 
 from nickelodeon.models import MP3Song
@@ -12,16 +12,14 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         songs = MP3Song.objects.select_related("owner").filter(duration=0)
         song_count = songs.count()
-        for i, song in enumerate(songs):
-            try:
+        i = 0
+        with ThreadPoolExecutor(max_workers=4) as executor:
+            future_to_song = {executor.submit(self.handle_song, song): song for song in songs}
+            for future in as_completed(future_to_song):
+                song = future_to_song[future]
+                print(song.filename)
                 print(f"{i}/{song_count}")
-                self.handle_song(song)
-            except KeyboardInterrupt:
-                break
-
+                i += 1
+        
     def handle_song(self, song):
-        print(song.filename)
         song.get_duration()
-
-    def print_conversion_progress(self, perc):
-        self.stdout.write("\r{}%".format(round(100 * perc, 1)), ending="")

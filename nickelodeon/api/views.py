@@ -139,7 +139,7 @@ class SongView(generics.RetrieveUpdateDestroyAPIView):
         return super().get_queryset()
 
     def perform_destroy(self, instance):
-        instance.remove_file()
+        instance.remove_files()
         super(SongView, self).perform_destroy(instance)
 
 

@@ -104,18 +104,27 @@ class MP3Song(models.Model):
                 s3_move_object(src, dst)
         self.filename = dest_filename
 
-    def remove_file(self):
+    def remove_files(self):
         for ext in ["mp3", "aac"]:
             file_path = self.get_file_format_path(ext).encode("utf-8")
             if s3_object_exists(file_path):
                 s3_object_delete(file_path)
 
+    def delete_aac(self):
+        if self.has_aac:
+            file_path = self.get_file_format_path("aac").encode("utf-8")
+            if s3_object_exists(file_path):
+                s3_object_delete(file_path)
+        if self.aac:
+            self.aac = False
+            self.save()
+
     def get_duration(self,force_mp3=False, invalidate_cache=False):
         if self.duration and not invalidate_cache:
             return self.duration
 
-        extension = "aac" if self.has_aac and not force_mp3 else "mp3"
-        
+        extension = "aac" if not force_mp3 and self.has_aac else "mp3"
+
         file = s3_get_file(self.get_file_format_path(extension))
         audio = None
         try:
@@ -132,4 +141,4 @@ class MP3Song(models.Model):
         return self.duration
     
     class Meta:
-        unique_together = ["owner", "filename"]
+        unique_together = ["owner", "filename"] # TODO: Use constraint

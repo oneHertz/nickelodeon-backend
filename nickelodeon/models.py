@@ -13,6 +13,7 @@ from nickelodeon.utils import (
     s3_move_object,
     s3_object_delete,
     s3_object_exists,
+    s3_get_file,
 )
 
 

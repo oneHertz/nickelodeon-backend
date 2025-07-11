@@ -12,3 +12,4 @@ uwsgi
 psycopg
 librespot @ git+https://github.com/kokarare1212/librespot-python
 sentry_sdk
+mutagen

@@ -50,3 +50,4 @@ wcwidth==0.2.13
 websocket-client==1.8.0
 yt-dlp==2025.6.9
 zeroconf==0.147.0
+mutagen==1.47.0

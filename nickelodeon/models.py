@@ -7,7 +7,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
 from django.urls import reverse
-
+import mutagen
 from nickelodeon.utils import (
     random_key,
     s3_move_object,
@@ -43,6 +43,7 @@ class MP3Song(models.Model):
         verbose_name="file name",
         max_length=255,
     )
+    duration = models.IntegerField(default=0)
     aac = models.BooleanField(default=False)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
@@ -108,5 +109,16 @@ class MP3Song(models.Model):
             if s3_object_exists(file_path):
                 s3_object_delete(file_path)
 
+    def get_duration(self, force=False):
+        if self.duration and not force:
+            return self.duration
+
+        extension = "aac" if has_aac else "mp3"
+        file = s3_get_file(self.get_file_format_path(extension).encode("utf-8"))
+        audio = mutagen.File(file)
+        self.duration = audio.info.length
+        self.save()
+        return self.duration
+    
     class Meta:
         unique_together = ["owner", "filename"]

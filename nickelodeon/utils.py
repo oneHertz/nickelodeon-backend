@@ -104,6 +104,12 @@ def s3_object_url(key):
         ClientMethod="get_object", Params={"Bucket": settings.S3_BUCKET, "Key": key}
     )
 
+def s3_get_file(key):
+    s3_buffer = BytesIO()
+    out_buffer = BytesIO()
+    s3_client = get_s3_client()
+    s3_client.download_fileobj(settings.S3_BUCKET, key, s3_buffer)
+    return s3_buffer
 
 def clean_empty_folder(folder):
     while not os.listdir(folder):

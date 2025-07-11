@@ -10,7 +10,7 @@ class Command(BaseCommand):
     help = "Create the missing aac files of the songs in the library"
 
     def handle(self, *args, **options):
-        songs = MP3Song.objects.filter(aac=False)
+        songs = MP3Song.objects.select_related("owner").filter(aac=False)
         for song in songs:
             try:
                 self.handle_song(song)

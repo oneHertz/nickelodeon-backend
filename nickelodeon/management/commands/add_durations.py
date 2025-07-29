@@ -3,7 +3,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from django.core.management.base import BaseCommand
 
 from nickelodeon.models import MP3Song
-from nickelodeon.utils import convert_audio, s3_object_url, s3_upload
+from nickelodeon.utils import s3_object_url, s3_upload
 from tqdm import tqdm
 
 class Command(BaseCommand):

@@ -13,7 +13,7 @@ from django.conf import settings
 from PIL import Image
 from io import BytesIO
 
-AVAILABLE_FORMATS = {"mp3": "libmp3lame", "aac": "libfdk-aac"}
+AVAILABLE_FORMATS = {"mp3": "libmp3lame"}
 FFMPEG_DURATION_PREFIX = "Duration: "
 FFMPEG_PROGRESS_PREFIX = "time="
 VALID_TIME_STR_CHARS = "0123456789:."
@@ -219,8 +219,39 @@ class FFMPEGTask(object):
             self.search_progress_str(out)
 
 
+def transcode_audio(input_file, callback=None):
+    command = ["ffmpeg", "-y", "-i", input_file, "-threads", "0", "-vn"]
+    command += [
+            "-ar",
+            "44100",
+            "-ac",
+            "2",
+            "-b:a",
+            "64k",
+            "-c:a",
+            "aac",
+            "-movflags",
+            "+faststart",
+            "-movflags",
+            "isml+frag_keyframe",
+            "-f",
+            "mp4",
+            "pipe:1",
+        ]
+    task = FFMPEGTask(command, callback)
+    task.run()
+    try:
+        f = task.process.stdout
+        byte = f.read(512)
+        while byte:
+            yield byte
+            byte = f.read(512)
+    finally:
+            task.process.kill()
+
+
 def convert_audio(
-    input_file, output_file_aac=None, output_file_mp3=None, callback=None
+    input_file, output_file_mp3=None, callback=None
 ):
     command = ["ffmpeg", "-y", "-i", input_file, "-threads", "0", "-vn"]
     if output_file_mp3 is not None:
@@ -259,7 +290,6 @@ def convert_audio(
 if __name__ == "__main__":
     convert_audio(
         "/tmp/test_input.mp3",
-        "/tmp/test_aac_out.aac",
         "/tmp/test_mp3_out.mp3",
         lambda x: print(x),
     )

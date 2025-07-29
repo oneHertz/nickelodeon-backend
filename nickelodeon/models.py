@@ -45,16 +45,11 @@ class MP3Song(models.Model):
         max_length=255,
     )
     duration = models.IntegerField(default=0)
-    aac = models.BooleanField(default=False)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     def has_extension(self, extension):
         file_path = self.get_file_format_path(extension).encode("utf-8")
         return s3_object_exists(file_path)
-
-    @property
-    def has_aac(self):
-        return self.has_extension("aac")
 
     @property
     def has_mp3(self):
@@ -77,7 +72,7 @@ class MP3Song(models.Model):
 
     @property
     def available_formats(self):
-        return {"mp3": self.has_mp3, "aac": self.has_aac}
+        return {"mp3": self.has_mp3}
 
     def get_file_format_path(self, extension="mp3"):
         file_path = "{}/{}.{}".format(
@@ -105,26 +100,15 @@ class MP3Song(models.Model):
         self.filename = dest_filename
 
     def remove_files(self):
-        for ext in ["mp3", "aac"]:
-            file_path = self.get_file_format_path(ext).encode("utf-8")
-            if s3_object_exists(file_path):
-                s3_object_delete(file_path)
+        ext = "mp3"
+        file_path = self.get_file_format_path(ext).encode("utf-8")
+        if s3_object_exists(file_path):
+            s3_object_delete(file_path)
 
-    def delete_aac(self):
-        if self.has_aac:
-            file_path = self.get_file_format_path("aac").encode("utf-8")
-            if s3_object_exists(file_path):
-                s3_object_delete(file_path)
-        if self.aac:
-            self.aac = False
-            self.save()
-
-    def get_duration(self,force_mp3=False, invalidate_cache=False):
+    def get_duration(self, invalidate_cache=False):
         if self.duration and not invalidate_cache:
             return self.duration
-
-        extension = "aac" if not force_mp3 and self.has_aac else "mp3"
-
+        extension = "mp3"
         file = s3_get_file(self.get_file_format_path(extension))
         audio = None
         try:
@@ -132,10 +116,7 @@ class MP3Song(models.Model):
         except Exception:
             pass
         if not audio:
-            if extension == "aac":
-                return self.get_duration(force_mp3=True, invalidate_cache=invalidate_cache)
-            else:
-                return 0
+            return 0
         self.duration = round(audio.info.length)
         self.save()
         return self.duration

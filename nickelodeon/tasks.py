@@ -43,33 +43,6 @@ def move_file(instance_id, from_filename, to_filename):
     return
 
 
-@shared_task()
-def create_aac(mp3_id=""):
-    song = None
-    try:
-        song = MP3Song.objects.get(id=mp3_id)
-    except MP3Song.DoesNotExist:
-        return
-    if not song.has_aac and song.has_mp3:
-        mp3_path = song.get_file_format_path("mp3")
-        mp3_url = s3_object_url(mp3_path)
-        with tempfile.NamedTemporaryFile() as aac_file:
-            aac_tmp_path = aac_file.name
-        convert_audio(
-            mp3_url,
-            output_file_aac=aac_tmp_path,
-        )
-        song.refresh_from_db()
-        aac_path = song.get_file_format_path("aac")
-        with open(aac_tmp_path, mode="rb") as f:
-            s3_upload(f, aac_path)
-    if not song.aac:
-        song.aac = True
-        song.save()
-    song.get_duration()
-    return {"done": "ok"}
-
-
 @shared_task(max_retries=0)
 def fetch_youtube_video(user_id="", video_id=""):
     safe_title = ""
@@ -118,7 +91,7 @@ def fetch_youtube_video(user_id="", video_id=""):
 
     extension_converted = []
     for ext, lib in AVAILABLE_FORMATS.items():
-        if ffmpeg_has_lib(lib) or ext == "aac":
+        if ffmpeg_has_lib(lib):
             extension_converted.append(ext)
     if not extension_converted:
         current_task.update_state(
@@ -180,16 +153,12 @@ def fetch_youtube_video(user_id="", video_id=""):
             raise Ignore()
     update_dl_progress(1)
     tmp_paths["mp3"] = download_path + ".mp3"
-    convert_audio(
-        tmp_paths["mp3"], tmp_paths.get("aac"), callback=update_conversion_progress
-    )
     final_filename = move_files_to_destination(
         dst_folder, safe_title, extension_converted, tmp_paths
     )
     song_filename = os.path.join(dst_folder, final_filename)
     song, dummy_created = MP3Song.objects.get_or_create(
         filename=song_filename[len(root_folder) + 1 :],
-        aac=("aac" in extension_converted),
         owner=user,
     )
     song.get_duration()
@@ -321,7 +290,6 @@ def fetch_spotify_track(user_id="", track_id=""):
     update_dl_progress(1)
     convert_audio(
         download_path,
-        tmp_paths.get("aac"),
         tmp_paths.get("mp3"),
         callback=update_conversion_progress,
     )
@@ -331,7 +299,6 @@ def fetch_spotify_track(user_id="", track_id=""):
     song_filename = os.path.join(dst_folder, final_filename)
     song, dummy_created = MP3Song.objects.get_or_create(
         filename=song_filename[len(root_folder) + 1 :],
-        aac=("aac" in extension_converted),
         owner=user,
     )
     song.get_duration()

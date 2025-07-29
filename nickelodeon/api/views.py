@@ -31,12 +31,11 @@ from nickelodeon.api.forms import ResumableMp3UploadForm
 from nickelodeon.api.serializers import ChangePasswordSerializer, MP3SongSerializer
 from nickelodeon.models import MP3Song
 from nickelodeon.tasks import (
-    create_aac,
     fetch_spotify_track,
     fetch_youtube_video,
     move_files_to_destination,
 )
-from nickelodeon.utils import print_vinyl, s3_object_url
+from nickelodeon.utils import print_vinyl, s3_object_url, transcode_audio
 
 MAX_SONGS_LISTED = 999
 
@@ -67,10 +66,20 @@ def download_song(request, pk, extension=None):
     song = get_object_or_404(MP3Song.objects.select_related("owner"), pk=pk)
     file_path = song.filename
     mime = "audio/mpeg" if extension == "mp3" else "audio/x-m4a"
-    file_path = "{}.{}".format(file_path, extension)
-    file_path = "{}/{}".format(song.owner.settings.storage_prefix, file_path)
-    filename = song.title + "." + extension
-    return serve_from_s3(request, file_path, filename=filename, mime=mime)
+    if extension == "mp3":
+        file_path = "{}.{}".format(file_path, extension)
+        file_path = "{}/{}".format(song.owner.settings.storage_prefix, file_path)
+        filename = song.title + "." + extension
+        return serve_from_s3(request, file_path, filename=filename, mime=mime)
+    # Transcode to aac
+    mp3_path = song.get_file_format_path("mp3")
+    mp3_url = s3_object_url(mp3_path)
+    return Response(
+        transcode_audio(mp3_url),
+        status=200,
+        content_type='audio/x-m4a',
+    )
+
 
 
 @api_view(["GET"])
@@ -318,9 +327,8 @@ class ResumableUploadView(APIView):
         )
         final_path = os.path.join(dest, final_filename)
         mp3 = MP3Song.objects.create(
-            filename=final_path[len(root_folder) + 1 :], aac=False, owner=user
+            filename=final_path[len(root_folder) + 1 :], owner=user
         )
-        create_aac.s(mp3.id).delay()
         return True
 
     @property

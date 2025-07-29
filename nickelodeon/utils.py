@@ -221,7 +221,7 @@ class FFMPEGTask(object):
 
 
 def transcode_audio(input_file, callback=None):
-    command = ["/usr/bin/ffmpeg", "-y", "-i", input_file, "-threads", "0", "-vn"]
+    command = ["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-i", input_file, "-threads", "0", "-vn"]
     command += [
             "-ar",
             "44100",
@@ -233,26 +233,18 @@ def transcode_audio(input_file, callback=None):
             "aac",
             "-movflags",
             "+faststart",
-            "-movflags",
-            "isml+frag_keyframe",
             "-f",
-            "mp4",
-            "pipe"
+            "flv",
+            "pipe:1"
         ]
-    with tempfile.NamedTemporaryFile() as tmp:
-        pipe_path = tmp.name + "pipe"
-        os.mkfifo(pipe_path)
-        command[-1] = f"pipe:{pipe_path}"
-        task = FFMPEGTask(command, callback)
-        task.run()
-        try:
-            with open(pipe_path, "rb") as f:
-                byte = f.read(512)
-                while byte:
-                    yield byte
-                    byte = f.read(512)
-        finally:
-            task.process.kill()
+    process = subprocess.Popen(
+        command,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        bufsize=256,
+    )
+    while d := process.stdout.read(512):
+        yield d
 
 
 def convert_audio(
@@ -293,5 +285,7 @@ def convert_audio(
 
 
 if __name__ == "__main__":
-    for a in transcode_audio("./tmp/test_input.mp3", lambda x: print(x)):
-        pass #print(len(a))
+    with open("test.mp4", "wb") as f:
+        for a in transcode_audio("./tmp/test_input.mp3"):
+            print(len(a))
+            f.write(a)

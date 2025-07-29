@@ -35,7 +35,7 @@ from nickelodeon.tasks import (
     fetch_youtube_video,
     move_files_to_destination,
 )
-from nickelodeon.utils import print_vinyl, s3_object_url, transcode_audio
+from nickelodeon.utils import print_vinyl, s3_object_url
 
 MAX_SONGS_LISTED = 999
 

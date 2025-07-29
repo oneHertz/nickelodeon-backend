@@ -13,7 +13,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.core.files.storage import FileSystemStorage
 from django.db import transaction
 from django.db.models import Q
-from django.http import HttpResponse
+from django.http import HttpResponse, StreamingHttpResponse
 from django.shortcuts import get_object_or_404, render
 from knox.models import AuthToken
 from knox.serializers import UserSerializer
@@ -74,7 +74,7 @@ def download_song(request, pk, extension=None):
     # Transcode to aac
     mp3_path = song.get_file_format_path("mp3")
     mp3_url = s3_object_url(mp3_path)
-    return HttpResponse(
+    return StreamingHttpResponse(
         transcode_audio(mp3_url),
         status=status.HTTP_206_PARTIAL_CONTENT,
         content_type='audio/x-m4a',

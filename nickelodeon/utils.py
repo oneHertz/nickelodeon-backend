@@ -146,7 +146,7 @@ class FFMPEGTask(object):
     process_completed = False
     process_reader = None
 
-    def __init__(self, command, callback=None):
+    def __init__(self, command, callback=None, progress=True):
         self.command = command
         self.callback = callback
 
@@ -157,9 +157,10 @@ class FFMPEGTask(object):
             stderr=subprocess.STDOUT,
             bufsize=10**8,
         )
-        self.process_reader = io.TextIOWrapper(self.process.stdout, encoding="utf8")
-        while not self.process_completed:
-            self.track_progress()
+        if progress:
+            self.process_reader = io.TextIOWrapper(self.process.stdout, encoding="utf8")
+            while not self.process_completed:
+                self.track_progress()
 
     @staticmethod
     def parse_time_str(time_str):
@@ -238,7 +239,7 @@ def transcode_audio(input_file, callback=None):
             "mp4",
             "pipe:1",
         ]
-    task = FFMPEGTask(command, callback)
+    task = FFMPEGTask(command, callback, progress=False)
     task.run()
     try:
         f = task.process.stdout

@@ -149,6 +149,7 @@ class FFMPEGTask(object):
     def __init__(self, command, callback=None, progress=True):
         self.command = command
         self.callback = callback
+        self.show_progress = progress
 
     def run(self):
         self.process = subprocess.Popen(
@@ -157,7 +158,7 @@ class FFMPEGTask(object):
             stderr=subprocess.STDOUT,
             bufsize=10**8,
         )
-        if progress:
+        if self.show_progress:
             self.process_reader = io.TextIOWrapper(self.process.stdout, encoding="utf8")
             while not self.process_completed:
                 self.track_progress()

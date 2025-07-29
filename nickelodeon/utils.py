@@ -156,7 +156,7 @@ class FFMPEGTask(object):
             self.command,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
-            bufsize=512,
+            bufsize=10**8,
         )
         self.process_reader = io.TextIOWrapper(self.process.stdout, encoding="utf8")
         while not self.process_completed:
@@ -237,19 +237,22 @@ def transcode_audio(input_file, callback=None):
             "isml+frag_keyframe",
             "-f",
             "mp4",
+            "pipe"
         ]
-    with tempfile.NamedTemporaryFile() as tmp_file:
-        command += [tmp_file.name]
+    with tempfile.NamedTemporaryFile() as tmp:
+        pipe_path = tmp.name + "pipe"
+        os.mkfifo(pipe_path)
+        command[-1] = f"pipe:{pipe_path}"
         task = FFMPEGTask(command, callback)
         task.run()
         try:
-            with open(tmp_file, "rb") as f:
+            with open("pipe", "rb") as f:
                 byte = f.read(512)
                 while byte:
                     yield byte
                     byte = f.read(512)
         finally:
-                task.process.kill()
+            task.process.kill()
 
 
 def convert_audio(
@@ -290,8 +293,5 @@ def convert_audio(
 
 
 if __name__ == "__main__":
-    convert_audio(
-        "/tmp/test_input.mp3",
-        "/tmp/test_mp3_out.mp3",
-        lambda x: print(x),
-    )
+    for a in transcode_audio("./tmp/test_input.mp3", lambda x: print(x)):
+        pass #print(len(a))

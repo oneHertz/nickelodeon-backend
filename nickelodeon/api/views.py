@@ -75,8 +75,7 @@ def download_song(request, pk, extension=None):
     mp3_path = song.get_file_format_path("mp3")
     mp3_url = s3_object_url(mp3_path)
     return StreamingHttpResponse(
-        transcode_audio(mp3_url),
-        content_type='audio/x-flv',
+        transcode_audio(mp3_url)
     )
 
 

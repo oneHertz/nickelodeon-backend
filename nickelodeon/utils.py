@@ -243,9 +243,11 @@ def transcode_audio(input_file, callback=None):
         stderr=subprocess.STDOUT,
         bufsize=256,
     )
-    while d := process.stdout.read(512):
-        yield d
-
+    try:
+        while d := process.stdout.read(512):
+            yield d
+    except:
+        process.kill()
 
 def convert_audio(
     input_file, output_file_mp3=None, callback=None

@@ -126,7 +126,7 @@ class ApiTestCase(APITestCase):
             "song_download", kwargs={"pk": self.song.id, "extension": "aac"}
         )
         res = self.client.get(download_url, data={"auth_token": auth_token})
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.status_code, status.HTTP_206_PARTIAL_CONTENT)
         self.client.credentials(HTTP_AUTHORIZATION="Token " + auth_token)
         random_song_url = reverse("song_random")
         res = self.client.get(random_song_url)

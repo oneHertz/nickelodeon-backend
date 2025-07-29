@@ -74,8 +74,8 @@ def download_song(request, pk, extension=None):
     # Transcode to aac
     mp3_path = song.get_file_format_path("mp3")
     mp3_url = s3_object_url(mp3_path)
-    return Response(
-        transcode_audio(mp3_url),
+    return HttpResponse(
+        response=transcode_audio(mp3_url),
         status=200,
         content_type='audio/x-m4a',
     )

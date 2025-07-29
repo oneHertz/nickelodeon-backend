@@ -222,7 +222,7 @@ class FFMPEGTask(object):
 
 
 def transcode_audio(input_file, callback=None):
-    command = ["/usr/bin/ffmpeg", "-y", "-i", input_file, "-threads", "0", "-vn"]
+    command = ["/usr/bin/ffmpeg", "-y", "-v", "0", "-i", input_file, "-threads", "0", "-vn"]
     command += [
             "-ar",
             "44100",

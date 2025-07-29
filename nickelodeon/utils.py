@@ -156,7 +156,7 @@ class FFMPEGTask(object):
             self.command,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
-            bufsize=10**8,
+            bufsize=512,
         )
         self.process_reader = io.TextIOWrapper(self.process.stdout, encoding="utf8")
         while not self.process_completed:

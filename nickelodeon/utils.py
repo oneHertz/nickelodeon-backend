@@ -147,10 +147,9 @@ class FFMPEGTask(object):
     process_completed = False
     process_reader = None
 
-    def __init__(self, command, callback=None, progress=True):
+    def __init__(self, command, callback=None):
         self.command = command
         self.callback = callback
-        self.show_progress = progress
 
     def run(self):
         self.process = subprocess.Popen(
@@ -159,11 +158,10 @@ class FFMPEGTask(object):
             stderr=subprocess.STDOUT,
             bufsize=10**8,
         )
-        if self.show_progress:
-            self.process_reader = io.TextIOWrapper(self.process.stdout, encoding="utf8")
-            while not self.process_completed:
-                self.track_progress()
-
+        self.process_reader = io.TextIOWrapper(self.process.stdout, encoding="utf8")
+        while not self.process_completed:
+            self.track_progress()
+        
     @staticmethod
     def parse_time_str(time_str):
         if not re.match(r"\d+:\d{2}:\d{2}\.\d+", time_str):
@@ -223,7 +221,7 @@ class FFMPEGTask(object):
 
 
 def transcode_audio(input_file, callback=None):
-    command = ["/usr/bin/ffmpeg", "-y", "-v", "0", "-i", input_file, "-threads", "0", "-vn"]
+    command = ["/usr/bin/ffmpeg", "-y", "-i", input_file, "-threads", "0", "-vn"]
     command += [
             "-ar",
             "44100",
@@ -242,7 +240,7 @@ def transcode_audio(input_file, callback=None):
         ]
     with tempfile.NamedTemporaryFile() as tmp_file:
         command += [tmp_file.name]
-        task = FFMPEGTask(command, callback, progress=False)
+        task = FFMPEGTask(command, callback)
         task.run()
         try:
             with open(tmp_file, "rb") as f:

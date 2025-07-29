@@ -5,8 +5,6 @@ import re
 import urllib
 from random import randint
 
-from celery.app import control
-from celery.result import AsyncResult
 from django.conf import settings
 from django.contrib.auth.signals import user_logged_in
 from django.core.exceptions import ImproperlyConfigured
@@ -30,12 +28,8 @@ from resumable.files import ResumableFile
 from nickelodeon.api.forms import ResumableMp3UploadForm
 from nickelodeon.api.serializers import ChangePasswordSerializer, MP3SongSerializer
 from nickelodeon.models import MP3Song
-from nickelodeon.tasks import (
-    fetch_spotify_track,
-    fetch_youtube_video,
-    move_files_to_destination,
-)
-from nickelodeon.utils import print_vinyl, s3_object_url
+from nickelodeon.tasks import move_files_to_destination
+from nickelodeon.utils import s3_object_url
 
 MAX_SONGS_LISTED = 999
 
@@ -60,33 +54,14 @@ def serve_from_s3(request, path, filename="", mime="application/force-download")
 
 @api_view(["GET"])
 @permission_classes((IsAuthenticated,))
-def download_song(request, pk, extension=None):
-    if extension is None:
-        extension = "mp3"
+def download_song(request, pk):
     song = get_object_or_404(MP3Song.objects.select_related("owner"), pk=pk)
     file_path = song.filename
-    mime = "audio/mpeg" if extension == "mp3" else "audio/x-m4a"
-    if extension == "mp3":
-        file_path = "{}.{}".format(file_path, extension)
-        file_path = "{}/{}".format(song.owner.settings.storage_prefix, file_path)
-        filename = song.title + "." + extension
-        return serve_from_s3(request, file_path, filename=filename, mime=mime)
-    # TODO: Transcode to aac
-    mp3_path = song.get_file_format_path("mp3")
-    mp3_url = s3_object_url(mp3_path)
-    return Response("")
-
-
-
-@api_view(["GET"])
-@permission_classes((IsAuthenticated,))
-def download_cover(request, pk):
-    song = get_object_or_404(MP3Song.objects.select_related("owner"), pk=pk)
-    file_path = "{}/{}".format(song.owner.settings.storage_prefix, song.filename)
-    image = print_vinyl(file_path)
-    response = HttpResponse(content_type="image/jpeg")
-    image.save(response, "png")
-    return response
+    mime = "audio/mpeg"
+    file_path = "{}.{}".format(file_path, "mp3")
+    file_path = "{}/{}".format(song.owner.settings.storage_prefix, file_path)
+    filename = song.title + ".mp3"
+    return serve_from_s3(request, file_path, filename=filename, mime=mime)
 
 
 class RandomSongView(generics.RetrieveAPIView):
@@ -203,48 +178,7 @@ def api_root(request):
     return Response({"status": "logged out"})
 
 
-@api_view(["GET"])
-@permission_classes((IsAdminUser,))
-def tasks_list(request):
-    i = control.inspect()
-    return Response(i.active())
-
-
-@api_view(["GET"])
-@permission_classes((IsAuthenticated,))
-def task_status(request, task_id):
-    res = AsyncResult(task_id)
-    try:
-        return Response(res.info)
-    except Exception:
-        return Response({"error": "Something went wrong"})
-
-
-@api_view(["POST"])
-@permission_classes((IsAuthenticated,))
-def youtube_grab(request):
-    video_id = request.data.get("v", "")
-    if not re.match(r"[a-zA-Z0-9_-]{11}", video_id):
-        raise ValidationError("Invalid v parameter %s" % video_id)
-    task = fetch_youtube_video.s(request.user.id, video_id).delay()
-    return Response({"task_id": str(task.task_id)})
-
-
-@api_view(["POST"])
-@permission_classes((IsAuthenticated,))
-def spotify_grab(request):
-    track_id = request.data.get("s", "")
-    if not re.match(r"[0-9a-zA-Z]{22}", track_id):
-        raise ValidationError("Invalid s parameter %s" % track_id)
-    task = fetch_spotify_track.s(request.user.id, track_id).delay()
-    return Response({"task_id": str(task.task_id)})
-
-
 class LoginView(GenericAPIView):
-    """
-    Login View: mix of knox login view and drf obtain auth token view
-    """
-
     throttle_classes = ()
     permission_classes = ()
     parser_classes = (

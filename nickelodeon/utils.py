@@ -246,7 +246,7 @@ def transcode_audio(input_file, callback=None):
         task = FFMPEGTask(command, callback)
         task.run()
         try:
-            with open("pipe", "rb") as f:
+            with open(pipe_path, "rb") as f:
                 byte = f.read(512)
                 while byte:
                     yield byte

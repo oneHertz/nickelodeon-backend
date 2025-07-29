@@ -220,35 +220,6 @@ class FFMPEGTask(object):
             self.search_progress_str(out)
 
 
-def transcode_audio(input_file, callback=None):
-    command = ["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-i", input_file, "-threads", "0", "-vn"]
-    command += [
-            "-ar",
-            "44100",
-            "-ac",
-            "2",
-            "-b:a",
-            "64k",
-            "-c:a",
-            "aac",
-            "-movflags",
-            "+faststart",
-            "-f",
-            "flv",
-            "pipe:1"
-        ]
-    process = subprocess.Popen(
-        command,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-        bufsize=256,
-    )
-    try:
-        while d := process.stdout.read(512):
-            yield d
-    except:
-        process.kill()
-
 def convert_audio(
     input_file, output_file_mp3=None, callback=None
 ):
@@ -285,9 +256,3 @@ def convert_audio(
     task.run()
     return
 
-
-if __name__ == "__main__":
-    with open("test.mp4", "wb") as f:
-        for a in transcode_audio("./tmp/test_input.mp3"):
-            print(len(a))
-            f.write(a)

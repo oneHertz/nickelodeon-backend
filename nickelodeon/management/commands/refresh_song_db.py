@@ -40,7 +40,6 @@ class Command(BaseCommand):
         for filename in self.scan_directory():
             self.process_music_file(filename)
 
-        self.t1 = self.last_flush = time.time()
         self.print_scan_status(True)
 
         prefix = self.root

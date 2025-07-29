@@ -76,8 +76,8 @@ def download_song(request, pk, extension=None):
     mp3_url = s3_object_url(mp3_path)
     return StreamingHttpResponse(
         transcode_audio(mp3_url),
-        status=status.HTTP_206_PARTIAL_CONTENT,
-        content_type='audio/x-m4a',
+        status=status.HTTP_200_OK,
+        content_type='audio/x-flv',
     )
 
 

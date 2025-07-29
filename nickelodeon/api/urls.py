@@ -37,7 +37,7 @@ urlpatterns = [
     re_path(
         r"^songs/(?P<pk>[a-zA-Z0-9_-]{11})/file\.mp3$",
         view=views.download_song,
-        name="song_download",
+        name="song_download_w_ext",
     ),
     re_path(r"^mp3-upload/?", views.ResumableUploadView.as_view(), name="mp3-upload"),
 ]

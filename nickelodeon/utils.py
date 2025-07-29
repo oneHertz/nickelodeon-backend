@@ -5,6 +5,7 @@ import re
 import secrets
 import struct
 import subprocess
+import tempfile
 
 import boto3
 import botocore
@@ -238,18 +239,19 @@ def transcode_audio(input_file, callback=None):
             "isml+frag_keyframe",
             "-f",
             "mp4",
-            "pipe:1",
         ]
-    task = FFMPEGTask(command, callback, progress=False)
-    task.run()
-    try:
-        f = task.process.stdout
-        byte = f.read(512)
-        while byte:
-            yield byte
-            byte = f.read(512)
-    finally:
-            task.process.kill()
+    with tempfile.NamedTemporaryFile() as tmp_file:
+        command += [tmp_file.name]
+        task = FFMPEGTask(command, callback, progress=False)
+        task.run()
+        try:
+            with open(tmp_file, "rb") as f:
+                byte = f.read(512)
+                while byte:
+                    yield byte
+                    byte = f.read(512)
+        finally:
+                task.process.kill()
 
 
 def convert_audio(

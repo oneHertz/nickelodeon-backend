@@ -21,6 +21,7 @@ class Command(BaseCommand):
         try:
             for song in songs:
                 print(song.filename)
+            print("")
             if (replace_str := options["replace"]) is not None:
                 for song in songs:
                     target = song.filename.replace(options["query"], replace_str)

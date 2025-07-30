@@ -24,6 +24,7 @@ class Command(BaseCommand):
                     target = song.filename.replace(options["query"], replace_str)
                     if not options["dryrun"]:
                         song.move_file_to(target)
+                        song.save()
                     print(target)
         except KeyboardInterrupt:
             pass

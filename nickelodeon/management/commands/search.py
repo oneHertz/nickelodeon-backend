@@ -13,8 +13,10 @@ class Command(BaseCommand):
         parser.add_argument("--dryrun", action="store_true")
 
     def handle(self, *args, **options):
-        songs = MP3Song.objects.select_related("owner").filter(
-            filename__contains=options["query"]
+        songs = (
+            MP3Song.objects.select_related("owner")
+            .filter(filename__contains=options["query"])
+            .order_by("filename")
         )
         try:
             for song in songs:

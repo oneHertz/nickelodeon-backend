@@ -1,19 +1,21 @@
 from __future__ import unicode_literals
 
-from io import BytesIO
 import os
 import re
+from io import BytesIO
+
+import mutagen
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
 from django.urls import reverse
-import mutagen
+
 from nickelodeon.utils import (
     random_key,
+    s3_get_file,
     s3_move_object,
     s3_object_delete,
     s3_object_exists,
-    s3_get_file,
 )
 
 
@@ -120,6 +122,6 @@ class MP3Song(models.Model):
         self.duration = round(audio.info.length)
         self.save()
         return self.duration
-    
+
     class Meta:
-        unique_together = ["owner", "filename"] # TODO: Use constraint
+        unique_together = ["owner", "filename"]  # TODO: Use constraint

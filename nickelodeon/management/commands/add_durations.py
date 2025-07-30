@@ -1,13 +1,13 @@
-import tempfile
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from django.core.management.base import BaseCommand
 
-from nickelodeon.models import MP3Song
-from nickelodeon.utils import s3_object_url, s3_upload
+from django.core.management.base import BaseCommand
 from tqdm import tqdm
 
+from nickelodeon.models import MP3Song
+
+
 class Command(BaseCommand):
-    args = ["workers"] 
+    args = ["workers"]
     help = "Add the missing durations for the songs in the library"
 
     def add_arguments(self, parser):
@@ -19,12 +19,14 @@ class Command(BaseCommand):
         try:
             with tqdm(total=song_count, unit="song") as pbar:
                 with ThreadPoolExecutor(max_workers=options.get("workers")) as executor:
-                    future_to_song = {executor.submit(self.handle_song, song): song for song in songs}
+                    future_to_song = {
+                        executor.submit(self.handle_song, song): song for song in songs
+                    }
                     for future in as_completed(future_to_song):
-                        song = future_to_song[future]
+                        future_to_song[future]
                         pbar.update(1)
         except KeyboardInterrupt:
             pass
-        
+
     def handle_song(self, song):
         song.get_duration()

@@ -8,7 +8,6 @@ from django.core.management.base import BaseCommand
 from nickelodeon.models import MP3Song, UserSettings
 from nickelodeon.utils import get_s3_client
 
-
 MP3_FILE_EXT_RE = re.compile(r"(.+)\.mp3$", re.IGNORECASE)
 
 

@@ -110,12 +110,9 @@ class ApiTestCase(APITestCase):
             login_url, data={"username": self.username, "password": self.password}
         )
         auth_token = res.data.get("token")
-        download_url = reverse(
-            "song_download", kwargs={"pk": self.song.id}
-        )
+        download_url = reverse("song_download", kwargs={"pk": self.song.id})
         res = self.client.get(download_url, data={"auth_token": auth_token})
         self.assertEqual(res.status_code, status.HTTP_206_PARTIAL_CONTENT)
-
 
         self.assertTrue(
             res.get("X-Accel-Redirect").startswith(

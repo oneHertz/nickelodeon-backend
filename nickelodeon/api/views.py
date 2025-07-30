@@ -1,5 +1,4 @@
 import datetime
-import json
 import os.path
 import re
 import urllib
@@ -11,7 +10,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.core.files.storage import FileSystemStorage
 from django.db import transaction
 from django.db.models import Q
-from django.http import HttpResponse, StreamingHttpResponse
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 from knox.models import AuthToken
 from knox.serializers import UserSerializer
@@ -20,7 +19,7 @@ from rest_framework.authtoken.serializers import AuthTokenSerializer
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.exceptions import NotFound, ValidationError
 from rest_framework.generics import GenericAPIView
-from rest_framework.permissions import SAFE_METHODS, IsAdminUser, IsAuthenticated
+from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from resumable.files import ResumableFile
@@ -256,9 +255,7 @@ class ResumableUploadView(APIView):
             dest, filename[:-4], ["mp3"], {"mp3": mp3_path}
         )
         final_path = os.path.join(dest, final_filename)
-        mp3 = MP3Song.objects.create(
-            filename=final_path[len(root_folder) + 1 :], owner=user
-        )
+        MP3Song.objects.create(filename=final_path[len(root_folder) + 1 :], owner=user)
         return True
 
     @property

@@ -1,17 +1,11 @@
-import datetime
 import logging
 import os
 import os.path
-import tempfile
-
-from django.conf import settings
-from django.contrib.auth.models import User
 
 from nickelodeon.models import MP3Song
 from nickelodeon.utils import (
     AVAILABLE_FORMATS,
     s3_object_exists,
-    s3_object_url,
     s3_upload,
 )
 

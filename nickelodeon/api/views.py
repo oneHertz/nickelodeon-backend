@@ -255,7 +255,10 @@ class ResumableUploadView(APIView):
             dest, filename[:-4], ["mp3"], {"mp3": mp3_path}
         )
         final_path = os.path.join(dest, final_filename)
-        MP3Song.objects.create(filename=final_path[len(root_folder) + 1 :], owner=user)
+        mp3 = MP3Song.objects.create(
+            filename=final_path[len(root_folder) + 1 :], owner=user
+        )
+        mp3.get_duration()
         return True
 
     @property

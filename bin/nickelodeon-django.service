@@ -5,7 +5,7 @@ After=network-online.target
 
 [Service]
 Type=Simple
-ExecStart=/apps/nickelodeon-backend/env/bin/uwsgi --ini /apps/nickelodeon-backend/bin/uwsgi.ini
+ExecStart=/apps/nickelodeon-backend/env/bin/gunicorn -c /apps/nickelodeon-backend/bin/gunicorn.conf.py -b unix:/apps/nickelodeon-backend/var/django.sock
 Restart=always
 Environment="PATH=/apps/nickelodeon-backend/env/bin/"
 WorkingDirectory=/apps/nickelodeon-backend/

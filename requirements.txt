@@ -9,8 +9,10 @@ django-cors-headers==4.7.0
 django-rest-knox @ git+https://github.com/James1345/django-rest-knox.git@8447cd00358b1a3f76862278711abd2cdcb8837a#egg=django_rest_knox
 django-resumable @ git+https://github.com/rphlo/django-resumable@b941d3406e3fcf73b3b4ffefc9572e7b55decb30
 djangorestframework==3.16.0
+gunicorn==23.0.0
 jmespath==1.0.1
 mutagen==1.47.0
+packaging==25.0
 psycopg==3.2.9
 psycopg-binary==3.2.9
 psycopg-pool==3.2.6
@@ -25,4 +27,3 @@ sqlparse==0.5.3
 tqdm==4.67.1
 typing-extensions==4.14.1
 urllib3==2.5.0
-uwsgi==2.0.30

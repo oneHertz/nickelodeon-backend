@@ -124,4 +124,9 @@ class MP3Song(models.Model):
         return self.duration
 
     class Meta:
-        unique_together = ["owner", "filename"]  # TODO: Use constraint
+        constraints = [
+            models.UniqueConstraint(
+                fields=["owner", "filename"],
+                name="unique_owner_filename",
+            ),
+        ]

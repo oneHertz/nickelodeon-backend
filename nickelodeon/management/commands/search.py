@@ -30,7 +30,7 @@ class Command(BaseCommand):
                     target = song.filename.replace(options["query"], replace_str)
                     text_to_print = song.filename.replace(
                         options["query"],
-                        f"\033[92m{options["query"]}\033[0m\033[91m{replace_str}\033[0m",
+                        f"\033[91m{options["query"]}\033[0m\033[92m{replace_str}\033[0m",
                     )
                     print(text_to_print)
                     if not options["dryrun"]:

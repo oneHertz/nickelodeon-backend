@@ -1,5 +1,18 @@
 version: '2'
 services:
+  minio:
+    container_name: hk_minio
+    image: minio/minio:latest
+    volumes:
+      - ../media:/data
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: minio123
+    command:
+      - server
+      - /data
+    expose:
+      - "9000"
   db:
     container_name: hk_postgres
     image: postgres:latest
@@ -10,31 +23,6 @@ services:
     restart: always
     expose:
       - "5432"
-  minio:
-    container_name: hk_minio
-    image: minio/minio:latest
-    volumes:
-      - ../media:/data
-    expose:
-      - "9000"
-    environment:
-      MINIO_ROOT_USER: minio
-      MINIO_ROOT_PASSWORD: minio123
-    command:
-      - server
-      - /data
-  nginx:
-    container_name: hk_nginx
-    image: nginx:latest
-    ports:
-      - "8081:80"
-    volumes:
-      - ../:/app/
-      - ../nginx:/etc/nginx/conf.d
-    links:
-      - minio
-    depends_on:
-      - django
   django:
     container_name: hk_django
     stop_signal: SIGINT
@@ -49,7 +37,23 @@ services:
       - "8000"
     user: ${USERID}:${GROUPID}
     links:
-      - redis
-      - minio
       - db
+      - minio
+    depends_on:
+      - db
+      - minio
     command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+  nginx:
+    container_name: hk_nginx
+    image: nginx:latest
+    ports:
+      - "8081:80"
+    volumes:
+      - ../:/app/
+      - ../nginx:/etc/nginx/conf.d
+    links:
+      - minio
+      - django
+    depends_on:
+      - django
+      - minio

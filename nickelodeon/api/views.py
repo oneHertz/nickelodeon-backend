@@ -14,7 +14,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 from knox.models import AuthToken
 from knox.serializers import UserSerializer
-from rest_framework import generics, parsers, renderers, status
+from rest_framework import generics, parsers, renderers
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.exceptions import NotFound, ValidationError
@@ -33,21 +33,30 @@ from nickelodeon.utils import s3_object_url
 MAX_SONGS_LISTED = 999
 
 
-def serve_from_s3(request, path, filename="", mime="application/force-download"):
-    url = s3_object_url(path)
-    url = "/s3_proxy{}".format(url[len(settings.S3_ENDPOINT_URL) :])
-    response_status = status.HTTP_200_OK
-    if request.method == "GET":
-        response_status = status.HTTP_206_PARTIAL_CONTENT
-    response = HttpResponse("", status=response_status)
-    if request.method == "GET":
-        response["X-Accel-Redirect"] = urllib.parse.quote(url.encode("utf-8"))
-        response["X-Accel-Buffering"] = "no"
-    response["Accept-Ranges"] = "bytes"
-    response["Content-Type"] = mime
-    response["Content-Disposition"] = (
-        f"attachment; filename*=UTF-8''{urllib.parse.quote(filename, safe='')}"
-    )
+def set_content_disposition(filename, dl=True):
+    prefix = "attachment; " if dl else ""
+    return f"{prefix}filename*=UTF-8''{urllib.parse.quote(filename, safe='')}"
+
+
+def serve_from_s3(
+    bucket,
+    request,
+    path,
+    filename="",
+    mime="application/force-download",
+    headers=None,
+    dl=True,
+):
+    if request.method not in ("GET", "HEAD"):
+        raise NotImplementedError()
+
+    url = s3_object_url(request.method, path, bucket)
+    url = url[len(settings.AWS_S3_ENDPOINT_URL) :]
+
+    response = HttpResponse("", headers=headers, content_type=mime)
+    response["X-Accel-Redirect"] = urllib.parse.quote(f"/s3{url}".encode("utf-8"))
+    response["X-Accel-Buffering"] = "no"
+    response["Content-Disposition"] = set_content_disposition(filename, dl=dl)
     return response
 
 
@@ -60,7 +69,13 @@ def download_song(request, pk):
     file_path = "{}.{}".format(file_path, "mp3")
     file_path = "{}/{}".format(song.owner.settings.storage_prefix, file_path)
     filename = song.title + ".mp3"
-    return serve_from_s3(request, file_path, filename=filename, mime=mime)
+    return serve_from_s3(
+        request,
+        file_path,
+        filename=filename,
+        mime=mime,
+        dl=True,
+    )
 
 
 class RandomSongView(generics.RetrieveAPIView):

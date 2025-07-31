@@ -84,10 +84,11 @@ def s3_upload(src, key):
     s3.upload_fileobj(src, settings.S3_BUCKET, key)
 
 
-def s3_object_url(key):
+def s3_object_url(method, key):
     s3 = get_s3_client()
     return s3.generate_presigned_url(
-        ClientMethod="get_object", Params={"Bucket": settings.S3_BUCKET, "Key": key}
+        ClientMethod=f"{method.lower()}_object",
+        Params={"Bucket": settings.S3_BUCKET, "Key": key},
     )
 
 

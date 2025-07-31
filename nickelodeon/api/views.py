@@ -39,7 +39,6 @@ def set_content_disposition(filename, dl=True):
 
 
 def serve_from_s3(
-    bucket,
     request,
     path,
     filename="",
@@ -50,7 +49,7 @@ def serve_from_s3(
     if request.method not in ("GET", "HEAD"):
         raise NotImplementedError()
 
-    url = s3_object_url(request.method, path, bucket)
+    url = s3_object_url(request.method, path)
     url = url[len(settings.AWS_S3_ENDPOINT_URL) :]
 
     response = HttpResponse("", headers=headers, content_type=mime)
@@ -70,7 +69,6 @@ def download_song(request, pk):
     file_path = "{}/{}".format(song.owner.settings.storage_prefix, file_path)
     filename = song.title + ".mp3"
     return serve_from_s3(
-        settings.S3_BUCKET,
         request,
         file_path,
         filename=filename,

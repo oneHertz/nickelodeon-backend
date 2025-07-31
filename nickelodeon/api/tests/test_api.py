@@ -116,7 +116,7 @@ class ApiTestCase(APITestCase):
 
         self.assertTrue(
             res.get("X-Accel-Redirect").startswith(
-                f"/s3_proxy/{settings.S3_BUCKET}/{self.user.settings.storage_prefix}/foo.mp3"
+                f"/s3/{settings.S3_BUCKET}/{self.user.settings.storage_prefix}/foo.mp3"
             )
         )
         self.client.credentials(HTTP_AUTHORIZATION="Token " + auth_token)
@@ -158,7 +158,7 @@ class ApiTestCase(APITestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertTrue(
             res.get("X-Accel-Redirect").startswith(
-                f"/s3_proxy/{settings.S3_BUCKET}/{self.user.settings.storage_prefix}/bar.mp3"
+                f"/s3/{settings.S3_BUCKET}/{self.user.settings.storage_prefix}/bar.mp3"
             )
         )
         res = self.client.delete(song_url)

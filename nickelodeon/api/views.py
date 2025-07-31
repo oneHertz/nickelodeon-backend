@@ -70,6 +70,7 @@ def download_song(request, pk):
     file_path = "{}/{}".format(song.owner.settings.storage_prefix, file_path)
     filename = song.title + ".mp3"
     return serve_from_s3(
+        settings.AWS_S3_BUCKET,
         request,
         file_path,
         filename=filename,

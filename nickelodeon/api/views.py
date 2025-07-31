@@ -50,7 +50,7 @@ def serve_from_s3(
         raise NotImplementedError()
 
     url = s3_object_url(request.method, path)
-    url = url[len(settings.AWS_S3_ENDPOINT_URL) :]
+    url = url[len(settings.S3_ENDPOINT_URL) :]
 
     response = HttpResponse("", headers=headers, content_type=mime)
     response["X-Accel-Redirect"] = urllib.parse.quote(f"/s3{url}".encode("utf-8"))

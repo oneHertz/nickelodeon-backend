@@ -112,7 +112,7 @@ class ApiTestCase(APITestCase):
         auth_token = res.data.get("token")
         download_url = reverse("song_download", kwargs={"pk": self.song.id})
         res = self.client.get(download_url, data={"auth_token": auth_token})
-        self.assertEqual(res.status_code, status.HTTP_206_PARTIAL_CONTENT)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
 
         self.assertTrue(
             res.get("X-Accel-Redirect").startswith(
@@ -155,7 +155,7 @@ class ApiTestCase(APITestCase):
             s3_object_exists(f"{self.user.settings.storage_prefix}/foo.mp3")
         )
         res = self.client.get(download_url)
-        self.assertEqual(res.status_code, status.HTTP_206_PARTIAL_CONTENT)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertTrue(
             res.get("X-Accel-Redirect").startswith(
                 f"/s3_proxy/{settings.S3_BUCKET}/{self.user.settings.storage_prefix}/bar.mp3"

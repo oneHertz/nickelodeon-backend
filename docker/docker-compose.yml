@@ -47,7 +47,7 @@ services:
     container_name: hk_nginx
     image: nginx:latest
     ports:
-      - "8081:80"
+      - "8000:80"
     volumes:
       - ../:/app/
       - ../nginx:/etc/nginx/conf.d

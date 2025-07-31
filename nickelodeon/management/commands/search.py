@@ -19,15 +19,22 @@ class Command(BaseCommand):
             .order_by("filename")
         )
         try:
-            for song in songs:
-                print(song.filename)
-            print("")
-            if (replace_str := options["replace"]) is not None:
+            if (replace_str := options["replace"]) is None:
+                for song in songs:
+                    text_to_print = song.filename.replace(
+                        options["query"], f"\033[92m{options["query"]}\033[0m"
+                    )
+                    print(text_to_print)
+            else:
                 for song in songs:
                     target = song.filename.replace(options["query"], replace_str)
+                    text_to_print = song.filename.replace(
+                        options["query"],
+                        f"\033[92m{options["query"]}\033[0m\033[91m{replace_str}\033[0m",
+                    )
+                    print(text_to_print)
                     if not options["dryrun"]:
                         song.move_file_to(target)
                         song.save()
-                    print(target)
         except KeyboardInterrupt:
             pass

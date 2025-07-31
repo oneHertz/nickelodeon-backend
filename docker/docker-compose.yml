@@ -12,15 +12,17 @@ services:
       - "5432"
   minio:
     container_name: hk_minio
-    image: minio/minio:edge
+    image: minio/minio:latest
     volumes:
       - ../media:/data
     expose:
       - "9000"
     environment:
-      MINIO_ACCESS_KEY: minio
-      MINIO_SECRET_KEY: minio123
-    command: server /data
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: minio123
+    command:
+      - server
+      - /data
   nginx:
     container_name: hk_nginx
     image: nginx:latest

@@ -1,7 +1,7 @@
-wsgi_app = "nickelodeon.site.wsgi:application"
+wsgi_app = "nickelodeon.wsgi:application"
 preload_app = True
 daemon = False
-raw_env = ["DJANGO_SETTINGS_MODULE=nickelodeon.site.settings"]
+raw_env = ["DJANGO_SETTINGS_MODULE=nickelodeon.settings"]
 workers = 2
 threads = 1
 max_requests = 300

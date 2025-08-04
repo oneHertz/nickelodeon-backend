@@ -26,6 +26,6 @@ ADD . /app/
 
 EXPOSE 8000
 
-ENV DJANGO_SETTINGS_MODULE=nickelodeon.site.settings
+ENV DJANGO_SETTINGS_MODULE=nickelodeon.settings
 
 RUN DATABASE_URL="sqlite://:memory:" python manage.py collectstatic --noinput

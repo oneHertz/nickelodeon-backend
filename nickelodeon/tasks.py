@@ -1,4 +1,3 @@
-import logging
 import os
 import os.path
 
@@ -8,8 +7,6 @@ from nickelodeon.utils import (
     s3_object_exists,
     s3_upload,
 )
-
-logger = logging.getLogger(__name__)
 
 
 def move_file(instance_id, from_filename, to_filename):

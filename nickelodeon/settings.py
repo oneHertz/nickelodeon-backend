@@ -40,7 +40,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
 ]
 
-ROOT_URLCONF = "nickelodeon.site.urls"
+ROOT_URLCONF = "nickelodeon.urls"
 
 STATIC_ROOT = os.path.join(BASE_DIR, "..", "static")
 STATIC_URL = "/static/"
@@ -63,7 +63,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "nickelodeon.site.wsgi.application"
+WSGI_APPLICATION = "nickelodeon.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases

@@ -18,7 +18,7 @@ jobs:
       - run:
           name: Run tests
           command: |
-            .venv/bin/coverage run --source=nickelodeon manage.py test --settings=nickelodeon.site.test_settings
+            .venv/bin/coverage run --source=nickelodeon manage.py test --settings=nickelodeon.test_settings
       - run:
           name: Upload coverage
           command: .venv/bin/python -m coveralls

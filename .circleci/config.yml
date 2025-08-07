@@ -15,6 +15,7 @@ jobs:
       - run: uv pip install coveralls
       - run: mkdir -p media/humppa-music
       - run: docker run -d -v media:/data -p 9000:9000 minio/minio:edge server /data
+      - run: cp .env.dev .env
       - run:
           name: Run tests
           command: |

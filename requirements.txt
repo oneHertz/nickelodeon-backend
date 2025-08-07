@@ -6,6 +6,7 @@ cffi==1.17.1
 cryptography==45.0.5
 django==5.2.4
 django-cors-headers==4.7.0
+django-environ==0.12.0
 django-rest-knox @ git+https://github.com/James1345/django-rest-knox.git@8447cd00358b1a3f76862278711abd2cdcb8837a#egg=django_rest_knox
 django-resumable @ git+https://github.com/rphlo/django-resumable@b941d3406e3fcf73b3b4ffefc9572e7b55decb30
 djangorestframework==3.16.0

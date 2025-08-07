@@ -1,16 +1,39 @@
 import os
 from datetime import timedelta
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+import environ
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "<replace-this-in-production>"
+# Environment dependent
+env = environ.Env()
+environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS")
+SECRET_KEY = env.str("SECRET_KEY")
 
-ALLOWED_HOSTS = ["*"]
+if env.str("EMAIL_URL", ""):
+    EMAIL_CONFIG = env.email()
+    vars().update(EMAIL_CONFIG)
+DEFAULT_FROM_EMAIL = env.str("DEFAULT_FROM_EMAIL")
+
+S3_ENDPOINT_URL = env.str("S3_ENDPOINT_URL")
+S3_BUCKET = env.str("S3_BUCKET")
+S3_ACCESS_KEY = env.str("S3_ACCESS_KEY")
+S3_SECRET_KEY = env.str("S3_SECRET_KEY")
+
+SESSION_COOKIE_DOMAIN = env.str("SESSION_COOKIE_DOMAIN")
+SESSION_COOKIE_HTTPONLY = env.bool("SESSION_COOKIE_HTTPONLY")
+SESSION_COOKIE_SECURE = env.bool("SESSION_COOKIE_SECURE")
+CSRF_COOKIE_SECURE = env.bool("CSRF_COOKIE_SECURE")
+
+SENTRY_DSN = env.str("SENTRY_DSN", "")
+
+DATABASES = {"default": env.db()}
+
+DEBUG = False
 
 AUTHENTICATION_BACKENDS = ("nickelodeon.backends.CaseInsensitiveModelBackend",)
 
@@ -64,20 +87,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "nickelodeon.wsgi.application"
-
-# Database
-# https://docs.djangoproject.com/en/1.10/ref/settings/#databases
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": "app_db",
-        "USER": "app_user",
-        "PASSWORD": "changeme",
-        "HOST": "db",
-        "PORT": "",
-    }
-}
-
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Internationalization
@@ -103,7 +112,7 @@ CORS_ORIGIN_ALLOW_ALL = True
 
 # Django Rest Knox
 REST_KNOX = {
-    "TOKEN_TTL": timedelta(days=1),
+    "TOKEN_TTL": timedelta(days=7),
     "AUTO_REFRESH": True,
 }
 
@@ -115,12 +124,15 @@ FILE_UPLOAD_TEMP_DIR = os.path.join(BASE_DIR, "..", "tmp")
 USE_X_FORWARDED_HOST = True
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
-S3_ENDPOINT_URL = "http://minio:9000"
-S3_BUCKET = "humppa-music"
-S3_ACCESS_KEY = "minio"
-S3_SECRET_KEY = "minio123"
+if SENTRY_DSN:
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        integrations=[DjangoIntegration()],
+        send_default_pii=True,
+        traces_sample_rate=0.001,
+    )
 
 try:
-    from .local_settings import *  # noqa: F403, F401
+    from .settings_override import *  # noqa: F403, F401
 except ImportError:
     pass

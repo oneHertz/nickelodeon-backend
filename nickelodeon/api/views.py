@@ -249,10 +249,18 @@ class ResumableUploadView(APIView):
         if rf.chunk_exists and not rf.is_complete:
             return HttpResponse("chunk already exists")
         elif not rf.chunk_exists:
-            rf.process_chunk(chunk)
+            try:
+                rf.process_chunk(chunk)
+            except Exception:
+                pass
         if rf.is_complete:
-            self.process_file(request.user, request.POST.get("resumableFilename"), rf)
-            rf.delete_chunks()
+            try:
+                self.process_file(
+                    request.user, request.POST.get("resumableFilename"), rf
+                )
+                rf.delete_chunks()
+            except Exception:
+                pass
         return HttpResponse()
 
     def process_file(self, user, filename, rfile):

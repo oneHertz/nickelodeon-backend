@@ -1,21 +1,20 @@
-
 asgiref==3.11.0
 boto3==1.42.27
 botocore==1.42.27
 certifi==2026.1.4
 cffi==2.0.0
 cryptography==46.0.3
-django==5.2.10
+django==5.2.11
 django-cors-headers==4.9.0
 django-environ==0.12.0
-django-rest-knox @ git+https://github.com/James1345/django-rest-knox.git@8447cd00358b1a3f76862278711abd2cdcb8837a#egg=django_rest_knox
-django-resumable @ git+https://github.com/rphlo/django-resumable@b941d3406e3fcf73b3b4ffefc9572e7b55decb30
+django-rest-knox @ git+https://github.com/James1345/django-rest-knox.git@8447cd00358b1a3f76862278711abd2cdcb8837a
+django-resumable @ git+https://github.com/rphlo/django-resumable
 djangorestframework==3.16.1
 gunicorn==23.0.0
 jmespath==1.0.1
 mutagen==1.47.0
 packaging==25.0
-psycopg==3.3.2
+psycopg[binary,pool]==3.3.2
 psycopg-binary==3.3.2
 psycopg-pool==3.3.0
 pycparser==2.23

@@ -112,14 +112,15 @@ class MP3Song(models.Model):
             return self.duration
         extension = "mp3"
         file = s3_get_file(self.get_file_format_path(extension))
-        audio = None
+        info = None
         try:
             audio = mutagen.File(fileobj=BytesIO(file.getvalue()))
+            info = audio.info
         except Exception:
             pass
-        if not audio:
+        if not info:
             return 0
-        self.duration = round(audio.info.length)
+        self.duration = round(info.length)
         self.save()
         return self.duration
 
